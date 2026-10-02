@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Remboursements santé</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Rembourse">
+<meta name="theme-color" content="#16343A">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EDF3EE; --paper:#FFFFFF; --ink:#16343A; --muted:#5B7173; --line:#CFDDD3;
+  --p0:#2F5BD3; --p1:#14866D; --p2:#7A4BC4; --wait:#C98A1A; --rac:#9AA9AA; --danger:#B3261E;
+  box-sizing:border-box;
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F1D1F; --paper:#17292C; --ink:#E3EEEA; --muted:#93A8A6; --line:#2A4044;
+  --p0:#7C9BFF; --p1:#4CC3A2; --p2:#B592F0; --wait:#E3AE4A; --rac:#5E7275; --danger:#F2867E; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#0F1D1F; --paper:#17292C; --ink:#E3EEEA; --muted:#93A8A6; --line:#2A4044;
+  --p0:#7C9BFF; --p1:#4CC3A2; --p2:#B592F0; --wait:#E3AE4A; --rac:#5E7275; --danger:#F2867E; color-scheme:dark;}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 "Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;font-variant-numeric:tabular-nums}
+main{max-width:640px;margin:0 auto;padding:0 16px 110px}
+.band{background:#16343A;color:#EDF3EE;margin:0 -16px 16px;padding:calc(env(safe-area-inset-top,0px) + 14px) 20px 18px}
+.band h1{color:#fff;font-size:32px;margin:6px 0 2px}
+.band .sub{color:#A9C2BF;margin:0 0 14px}
+.bandTop{display:flex;justify-content:space-between;align-items:center}
+.kicker{font-size:12px;letter-spacing:.06em;color:#A9C2BF}
+.gear{background:none;border:0;color:#EDF3EE;font-size:24px;padding:4px}
+.bandBtns{display:flex;gap:8px;flex-wrap:wrap}
+.bandBtns button,.btnLike{background:rgba(255,255,255,.12);color:#fff;border:0;border-radius:999px;padding:8px 14px;font-size:14px;cursor:pointer}
+button.pj{padding:0;cursor:pointer;font:inherit}
+#dlgPj img{max-width:100%;max-height:70vh;display:block;margin:0 auto 12px;border-radius:8px}
+h1{font-size:26px;line-height:1.15;margin:8px 0 2px;font-weight:700;letter-spacing:-.01em}
+.sub{color:var(--muted);margin:0 0 16px;font-size:14px}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--p0);outline-offset:2px}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.icon{background:none;border:1px solid var(--line);border-radius:10px;padding:8px 10px;color:var(--muted)}
+/* bilan */
+.bilan{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:16px}
+.bilan .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.bilan select{border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:4px 8px}
+.big{font-size:32px;font-weight:700;letter-spacing:-.02em;margin:10px 0 2px}
+.big small{font-size:14px;font-weight:500;color:var(--muted);letter-spacing:0}
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;margin-top:12px;font-size:13px}
+.legend div{display:flex;justify-content:space-between;gap:6px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:1px}
+/* barre de répartition */
+.bar{display:flex;height:10px;border-radius:5px;overflow:hidden;background:var(--line);margin-top:10px}
+.bar span{height:100%}
+.bar .w{background:repeating-linear-gradient(135deg,var(--wait) 0 3px,transparent 3px 6px)}
+.bar .r{background:var(--rac)}
+/* filtres */
+.tabs{display:flex;gap:6px;margin:0 0 10px}
+.tabs button{border:1px solid var(--line);background:transparent;border-radius:999px;padding:6px 12px;font-size:14px;color:var(--muted)}
+.tabs button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+/* liste */
+ul.soins{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.soin{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 14px;text-align:left;width:100%}
+.soin .l1{display:flex;justify-content:space-between;gap:10px;font-weight:600}
+.soin .l2{color:var(--muted);font-size:13px;margin-top:2px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{font-size:12px;border-radius:6px;padding:2px 7px;border:1px solid currentColor}
+.chip.ok{color:var(--p1)} .chip.att{color:var(--wait)} .chip.old{color:var(--danger)} .chip.nc{color:var(--muted);opacity:.7}
+.empty{background:var(--paper);border:1px dashed var(--line);border-radius:12px;padding:24px;text-align:center;color:var(--muted)}
+.fab{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);border:0;border-radius:999px;padding:14px 22px;font-weight:600;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+/* feuille */
+dialog{border:0;padding:0;width:min(640px,100%);max-height:92vh;background:var(--paper);color:var(--ink);border-radius:18px 18px 0 0;margin:auto auto 0}
+dialog::backdrop{background:rgba(10,25,28,.45)}
+.sheet{padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));overflow:auto;max-height:92vh}
+.sheet h2{margin:0 0 12px;font-size:19px}
+label.f{display:block;font-size:13px;color:var(--muted);margin:10px 0 4px}
+.sheet input,.sheet select{width:100%;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:10px;min-height:44px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+fieldset{border:1px solid var(--line);border-radius:12px;padding:10px 12px 12px;margin:12px 0 0}
+legend{font-weight:600;padding:0 4px}
+.seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{flex:1;border:0;background:transparent;padding:9px 4px;font-size:13px}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.recu{margin-top:8px}
+.calc{margin-top:14px;padding:10px 12px;border-radius:10px;background:var(--bg);display:flex;justify-content:space-between;font-weight:600}
+.actions{display:flex;gap:10px;margin-top:16px}
+.actions button{flex:1;border-radius:12px;padding:12px;border:1px solid var(--line);background:transparent;font-weight:600}
+.actions .main{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.del{color:var(--danger);background:none;border:0;margin-top:12px;padding:8px 0}
+.sublbl{font-size:12px;color:var(--muted);margin:10px 0 4px}
+.pjs{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.pj{position:relative;width:76px;height:76px;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);text-decoration:none}
+.pj img{width:100%;height:100%;object-fit:cover}
+.pj .x{position:absolute;top:2px;right:2px;width:24px;height:24px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;font-size:14px;line-height:1}
+.addpj{width:76px;height:76px;border-radius:10px;border:1px dashed var(--line);display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:var(--muted);cursor:pointer}
+.addpj input{position:absolute;width:1px;height:1px;opacity:0}
+.chip.pjc{color:var(--muted)}
+#__x{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:16px}
+#v-saisie input,#v-saisie select{width:100%;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:10px;min-height:44px}
+.badge{display:inline-block;min-width:18px;margin-left:6px;padding:0 5px;border-radius:9px;background:var(--danger);color:#fff;font-size:11px;line-height:18px}
+.badge[hidden]{display:none}
+.filtres{display:flex;gap:8px;margin-bottom:12px}
+.filtres select{flex:1;min-width:0;border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:6px 8px}
+.del.arm{background:var(--danger);color:#fff;border-radius:10px;padding:10px 12px;width:100%;font-weight:600}
+.note{font-size:12px;color:var(--muted);margin-top:16px}
+@media (prefers-reduced-motion:no-preference){dialog[open]{animation:up .2s ease-out}@keyframes up{from{transform:translateY(24px);opacity:.6}}}
+</style>
+</head>
+<body>
+<main>
+  <header class="band">
+    <div class="bandTop"><span class="kicker">Sécu · Compl. · Sanergi</span><button class="gear" id="btnSettings" aria-label="Réglages">⚙︎</button></div>
+    <h1>Remboursements</h1>
+    <p class="sub" id="syncInfo"></p>
+    <div class="bandBtns"><button type="button" id="btnExport">Exporter une sauvegarde</button><label class="btnLike">Importer<input type="file" id="fImport" accept=".json,application/json" hidden></label></div>
+  </header>
+
+  <section class="bilan" aria-label="Bilan">
+    <div class="filtres"><select class="selQui" aria-label="Personne"></select><select id="annee" aria-label="Année"></select></div>
+    <strong>Reste à charge</strong>
+    <div class="big" id="bigRac">0 €</div>
+    <div class="bar" id="barTotal"></div>
+    <div class="legend" id="legend"></div>
+  </section>
+
+  <div class="tabs" role="group" aria-label="Filtre">
+    <button data-f="attente" aria-pressed="true">En attente</button>
+    <button data-f="envoyer" aria-pressed="false">À envoyer<span class="badge" id="badge" hidden></span></button>
+    <button data-f="tous" aria-pressed="false">Tous</button>
+  </div>
+  <ul class="soins" id="liste"></ul>
+</main>
+<button class="fab" id="btnAdd">Ajouter un soin</button>
+
+<dialog id="dlg"><form class="sheet" id="form" method="dialog" onsubmit="return false">
+  <h2 id="dlgTitle">Nouveau soin</h2>
+  <div class="two">
+    <div><label class="f" for="fDate">Date du soin</label><input type="date" id="fDate" required></div>
+    <div><label class="f" for="fPaye">Dépense totale (€)</label><input type="number" id="fPaye" inputmode="decimal" step="0.01" min="0" required></div>
+  </div>
+  <label class="f">Pour</label><div class="seg" id="fBenef"></div>
+  <label class="f" for="fCat">Type</label><select id="fCat"></select><p class="note" id="catHint" style="margin-top:6px" hidden></p>
+  <div id="consult" hidden>
+    <div class="two">
+      <div><label class="f" for="fBr">Base de remboursement (€)</label><input type="number" id="fBr" inputmode="decimal" step="0.01" min="0"></div>
+      <div><label class="f">Médecin</label><div class="seg" id="fOptam"><button type="button" data-o="oui">OPTAM / sect. 1</button><button type="button" data-o="non">Non OPTAM</button></div></div>
+    </div>
+    <p class="note" style="margin-top:6px">« Hors cas » sur le décompte = non OPTAM. Si vous ne connaissez pas la base (elle figure sur le décompte), laissez vide : l'appli fera une estimation.</p>
+  </div>
+  <label class="f">Tiers payant</label>
+  <div class="seg" id="fTp"><button type="button" data-tp="non">Non</button><button type="button" data-tp="base">Part CAMIEG</button><button type="button" data-tp="tout">CAMIEG + compl.</button></div>
+  <label class="f" for="fLib">Détail (praticien, pharmacie…)</label><input id="fLib" placeholder="Dr Martin, dermatologue">
+  <label class="f">Factures et reçus</label>
+  <div class="pjs" id="pjs"></div>
+  <p class="note" id="pjInfo" hidden></p>
+  <div id="payeursFields"></div>
+  <div class="calc"><span id="calcLbl">Reste à charge</span><span id="calcVal">—</span></div>
+  <p class="note" id="avance" style="margin-top:6px" hidden></p>
+  <p class="note" id="estim" style="margin-top:8px"></p>
+  <div class="actions"><button type="button" id="btnCancel">Annuler</button><button type="button" class="main" id="btnSave">Enregistrer</button></div>
+  <button type="button" class="del" id="btnDel" hidden>Supprimer ce soin</button>
+</form></dialog>
+
+<dialog id="dlgPj"><div class="sheet"><div id="pjView"></div>
+  <div class="actions"><button type="button" onclick="this.closest('dialog').close()">Fermer</button><button type="button" class="main" id="pjShare">Partager / envoyer</button></div></div></dialog>
+
+<dialog id="dlgSet"><div class="sheet">
+  <h2>Réglages</h2>
+  <p class="note" style="margin-top:0">Organismes qui remboursent, dans l'ordre où ils paient. « Envoi automatique » : la demande part seule (télétransmission). « Toujours à envoyer » : chaque nouveau soin sera marqué à envoyer.</p>
+  <div id="setPayeurs"></div>
+  <label class="f" for="setBenefs">Bénéficiaires (séparés par des virgules)</label>
+  <input id="setBenefs">
+  <div class="actions"><button type="button" id="setCancel">Annuler</button><button type="button" class="main" id="setSave">Enregistrer</button></div>
+</div></dialog>
+
+<script>
+const CATS=["Médecin généraliste","Spécialiste","Pharmacie","Dentaire","Parodontologie","Orthodontie","Optique","Appareillage (semelles, orthèses…)","Kiné / paramédical","Imagerie / échographie","Actes techniques","Analyses de laboratoire","Hospitalisation","Ostéopathie / chiropraxie","Psychologue","Podologue","Non remboursé par la Sécu","Autre"];
+const REGLES={"Optique":{sanergi:"aenvoyer"},"Dentaire":{sanergi:"aenvoyer"},"Appareillage (semelles, orthèses…)":{sanergi:"aenvoyer"},"Non remboursé par la Sécu":{secu:"nc",sanergi:"aenvoyer"},"Ostéopathie / chiropraxie":{secu:"nc",sanergi:"aenvoyer"},"Psychologue":{secu:"nc",sanergi:"aenvoyer"},"Podologue":{secu:"nc",sanergi:"aenvoyer"},"Parodontologie":{secu:"nc",sanergi:"aenvoyer"},"Orthodontie":{sanergi:"aenvoyer"}};
+const VARIABLES=["Optique","Dentaire","Appareillage (semelles, orthèses…)","Hospitalisation"];
+const COLORS=["var(--p0)","var(--p1)","var(--p2)"];
+const DEFAULT={payeurs:[{id:"secu",nom:"CAMIEG",env:"auto"},{id:"camieg",nom:"Compl.",env:"auto",lie:true},{id:"sanergi",nom:"Sanergi",env:"auto"}],benefs:["Moi"],soins:[]};
+const LS="remb-sante-v1";
+const eur=new Intl.NumberFormat("fr-FR",{style:"currency",currency:"EUR"});
+const $=s=>document.querySelector(s);
+let pjAvant=[], pjNouvelles=[];
+function migrer(st){(st.soins||[]).forEach(x=>{if(x.cat==="Non remboursé par la Sécu"){const l=(x.libelle||"").toLowerCase();
+  if(l.startsWith("psycho"))x.cat="Psychologue";else if(l.startsWith("podo"))x.cat="Podologue";else if(l.startsWith("ostéo"))x.cat="Ostéopathie / chiropraxie"}
+  if(x.cat==="Dentaire"&&/orthodontie/i.test(x.libelle||""))x.cat="Orthodontie"});(st.soins||[]).forEach(x=>{if(x.cat==="Analyses / radiologie")x.cat="Imagerie / échographie"});const pc=st.payeurs.find(p=>p.id==="camieg"),ps=st.payeurs.find(p=>p.id==="secu");
+  if(pc&&(pc.nom==="CAMIEG"||pc.nom==="Complémentaire"))pc.nom="Compl."; if(ps&&ps.nom==="Sécu")ps.nom="CAMIEG";const c=st.payeurs.find(p=>p.id==="camieg");if(c&&c.lie===undefined)c.lie=true;return st}
+let state=migrer(load()), filtre="attente", annee=String(new Date().getFullYear()), qui="tous", editId=null, draft=null;
+let assets=true; const urls={};
+const ENV={auto:"Automatique",aenvoyer:"À envoyer",envoye:"Envoyé"};
+const rOf=(s,p)=>{const r=s.rembs[p.id]||(s.rembs[p.id]={st:"attente",m:""});if(!r.env)r.env=p.env||"auto";return r};
+function groupes(s){const g=[];state.payeurs.forEach((p,i)=>{if(i>0&&p.lie&&!(s&&s.tp==="base"))g[g.length-1].push(p);else g.push([p])});return g}
+function aligner(s){groupes(s).forEach(g=>{const r0=rOf(s,g[0]);g.slice(1).forEach(p=>{const r=rOf(s,p);r.st=r0.st;r.env=r0.env;r.envD=r0.envD})})}
+const aEnvoyer=s=>state.payeurs.some(p=>{const r=rOf(s,p);return r.st==="attente"&&r.env==="aenvoyer"});
+
+function load(){try{const v=JSON.parse(localStorage.getItem(LS));if(v&&v.soins)return v}catch(e){}return structuredClone(DEFAULT)}
+function save(){
+  try{localStorage.setItem(LS,JSON.stringify(state))}catch(e){}
+}
+const num=v=>Math.round((parseFloat(String(v).replace(",","."))||0)*100)/100;
+const jours=d=>Math.floor((Date.now()-new Date(d+"T12:00"))/864e5);
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+
+function bilanSoin(s){
+  let recu=0,attente=false,parts=[];
+  state.payeurs.forEach((p,i)=>{const r=s.rembs[p.id]||{st:"attente"};
+    if(r.st==="recu"||r.st==="tp"){recu+=num(r.m);parts.push([i,num(r.m)])}
+    if(r.st==="attente")attente=true});
+  return{recu,attente,parts,rac:Math.max(0,num(s.paye)-recu)};
+}
+
+function render(){
+  const ans=[...new Set(state.soins.map(s=>s.date.slice(0,4)))].sort().reverse();
+  if(!ans.includes(String(new Date().getFullYear())))ans.unshift(String(new Date().getFullYear()));
+  $("#annee").innerHTML=ans.map(a=>`<option ${a===annee?"selected":""}>${a}</option>`).join("")+`<option value="toutes" ${annee==="toutes"?"selected":""}>Toutes les années</option>`;
+  document.querySelectorAll(".selQui").forEach(q=>{q.innerHTML=`<option value="tous">Tout le monde</option>`+state.benefs.map(b=>`<option ${b===qui?"selected":""}>${esc(b)}</option>`).join("");q.hidden=state.benefs.length<2});
+  const nbEnv=state.soins.filter(aEnvoyer).length;$("#badge").hidden=!nbEnv;$("#badge").textContent=nbEnv;
+  const sel=state.soins.filter(s=>(annee==="toutes"||s.date.startsWith(annee))&&(qui==="tous"||s.benef===qui));
+  let paye=0,parP=state.payeurs.map(()=>0),enAtt=0,rac=0,nbAtt=0;
+  sel.forEach(s=>{const b=bilanSoin(s);paye+=num(s.paye);b.parts.forEach(([i,m])=>parP[i]+=m);
+    if(b.attente){enAtt+=b.rac;nbAtt++}else rac+=b.rac});
+  $("#bigRac").innerHTML=`${eur.format(rac)} <small>sur ${eur.format(paye)} payés</small>`;
+  const pct=v=>paye?(v/paye*100):0;
+  $("#barTotal").innerHTML=parP.map((v,i)=>`<span style="width:${pct(v)}%;background:${COLORS[i%3]}"></span>`).join("")+
+    `<span class="w" style="width:${pct(enAtt)}%"></span><span class="r" style="width:${pct(rac)}%"></span>`;
+  $("#legend").innerHTML=state.payeurs.map((p,i)=>`<div><span><i class="dot" style="background:${COLORS[i%3]}"></i>${esc(p.nom)}</span><span>${eur.format(parP[i])}</span></div>`).join("")+
+    `<div><span><i class="dot" style="background:var(--wait)"></i>En attente (${nbAtt})</span><span>${eur.format(enAtt)}</span></div>`;
+
+  let list=state.soins.filter(s=>(qui==="tous"||s.benef===qui)&&(filtre!=="tous"||annee==="toutes"||s.date.startsWith(annee))).sort((a,b)=>b.date.localeCompare(a.date));
+  if(filtre==="attente")list=list.filter(s=>bilanSoin(s).attente);
+  if(filtre==="envoyer")list=list.filter(aEnvoyer);
+  $("#liste").innerHTML=list.length?list.map(s=>{
+    const b=bilanSoin(s),j=jours(s.date);
+    const chips=groupes(s).map(g=>{aligner(s);const r=rOf(s,g[0]),nom=g.map(p=>esc(p.nom)).join(" + ");
+      if(r.st==="recu")return g.map(p=>`<span class="chip ok">${esc(p.nom)} ${eur.format(num(rOf(s,p).m))}</span>`).join("");
+      if(r.st==="tp")return g.map(p=>`<span class="chip ok">${esc(p.nom)} tiers payant ${eur.format(num(rOf(s,p).m))}</span>`).join("");
+      if(r.st==="nc")return`<span class="chip nc">${nom} non concerné</span>`;
+      if(r.env==="aenvoyer")return`<span class="chip old">${nom} à envoyer</span>`;
+      const ref=r.env==="envoye"&&r.envD?r.envD:s.date, jj=jours(ref);
+      return`<span class="chip ${jj>30?"old":"att"}">${nom} ${r.env==="envoye"?"envoyé, ":""}en attente${jj>30?` · ${jj} j`:""}</span>`}).join("")
+      +((s.pj||[]).length?`<span class="chip pjc">${s.pj.length} pièce${s.pj.length>1?"s":""}</span>`:"");
+    return`<li><button class="soin" data-id="${s.id}">
+      <div class="l1"><span>${esc(s.libelle||s.cat)}</span><span>${eur.format(num(s.paye))}</span></div>
+      <div class="l2">${new Date(s.date+"T12:00").toLocaleDateString("fr-FR",{day:"numeric",month:"short",year:"numeric"})} · ${esc(s.cat)}${state.benefs.length>1?" · "+esc(s.benef):""}${b.attente?"":" · reste "+eur.format(b.rac)}</div>
+      <div class="chips">${chips}</div></button></li>`}).join("")
+    :`<li class="empty">${state.soins.length?(filtre==="envoyer"?"Rien à envoyer.":"Rien en attente. Tout est remboursé."):"Ajoutez votre premier soin pour suivre ses remboursements."}</li>`;
+}
+function esc(t){return String(t??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+
+/* --- formulaire --- */
+function openForm(id){
+  editId=id; const s=id?state.soins.find(x=>x.id===id):null;
+  draft=s?structuredClone(s):{id:uid(),date:new Date().toISOString().slice(0,10),cat:CATS[0],benef:state.benefs[0],libelle:"",paye:"",rembs:{}};
+  state.payeurs.forEach(p=>rOf(draft,p)); draft.pj=draft.pj||[]; pjAvant=[...draft.pj];
+  $("#dlgTitle").textContent=s?"Modifier le soin":"Nouveau soin";
+  $("#fDate").value=draft.date;$("#fPaye").value=draft.paye;$("#fLib").value=draft.libelle;
+  $("#fCat").innerHTML=CATS.map(c=>`<option ${c===draft.cat?"selected":""}>${c}</option>`).join("");
+  if(!s&&qui!=="tous")draft.benef=qui;
+  renderBenef();
+  $("#btnDel").hidden=!s; delete $("#btnDel").dataset.arm; $("#btnDel").textContent="Supprimer ce soin"; $("#btnDel").classList.remove("arm"); if(!s){draft.tp="non";appliquerRegle()} majConsult(); renderPayeurs(); renderPj(); readForm(); majHint(); $("#dlg").showModal();
+}
+function renderPayeurs(){
+  aligner(draft);
+  $("#payeursFields").innerHTML=groupes(draft).map((g,gi)=>{const r=draft.rembs[g[0].id];
+    const montants=lbl=>`<div class="${g.length>1?"two":""}">${g.map(p=>`<div class="recu"><label class="f" for="m_${p.id}">${lbl} ${esc(p.nom)} (€)</label><input type="number" step="0.01" min="0" inputmode="decimal" id="m_${p.id}" data-m="${p.id}" value="${draft.rembs[p.id].m}"></div>`).join("")}</div>`;
+    if(r.st==="tp")return`<fieldset><legend>${g.map(p=>esc(p.nom)).join(" + ")}</legend><p class="note" style="margin:0">Payé directement au médecin (tiers payant).</p>${montants("Part")}</fieldset>`;
+    const b=(v,l)=>`<button type="button" data-g="${gi}" data-st="${v}" aria-pressed="${r.st===v}">${l}</button>`;
+    return`<fieldset><legend>${g.map(p=>esc(p.nom)).join(" + ")}</legend><div class="seg">${b("attente","En attente")}${b("recu","Reçu")}${b("nc","Non concerné")}</div>
+      ${r.st==="attente"?`<div class="sublbl">Envoi de la demande</div><div class="seg">${Object.entries(ENV).map(([v,l])=>`<button type="button" data-g="${gi}" data-env="${v}" aria-pressed="${r.env===v}">${l}</button>`).join("")}</div>${r.env==="envoye"?`<div class="recu"><label class="f" for="e_${gi}">Envoyé le</label><input type="date" id="e_${gi}" data-ed="${gi}" value="${r.envD||""}"></div>`:""}`:""}
+      ${r.st==="recu"?`<div class="${g.length>1?"two":""}">${g.map(p=>`<div class="recu"><label class="f" for="m_${p.id}">${g.length>1?"Reçu "+esc(p.nom):"Montant reçu"} (€)</label><input type="number" step="0.01" min="0" inputmode="decimal" id="m_${p.id}" data-m="${p.id}" value="${draft.rembs[p.id].m}"></div>`).join("")}</div>`:""}</fieldset>`}).join("");
+  calc();
+}
+function renderBenef(){$("#fBenef").innerHTML=state.benefs.map((c,i)=>`<button type="button" data-b="${i}" aria-pressed="${c===draft.benef}">${esc(c)}</button>`).join("")}
+$("#fBenef").addEventListener("click",e=>{const t=e.target.closest("[data-b]");if(t){draft.benef=state.benefs[+t.dataset.b];renderBenef()}});
+function appliquerRegle(){const regle=REGLES[draft.cat]||{};
+  groupes(draft).forEach(g=>{const r=draft.rembs[g[0].id];if(r.st==="recu"||r.st==="tp"||r.env==="envoye")return;
+    const v=g.map(p=>regle[p.id]).find(Boolean);
+    r.st=v==="nc"?"nc":"attente";r.env=v&&v!=="nc"?v:(g[0].env||"auto")});
+  renderPayeurs()}
+function majHint(){const regle=REGLES[draft.cat],h=$("#catHint");
+  if(!regle){h.hidden=true;return}
+  h.hidden=false;h.textContent=state.payeurs.filter(p=>regle[p.id]).map(p=>regle[p.id]==="nc"?`${p.nom} : non concerné`:`${p.nom} : facture à envoyer`).join(". ")+". Modifiable ci-dessous."}
+/* Taux vérifiés sur les décomptes : part CAMIEG (b), Compl. (c), Sanergi (s) en % de la base de remboursement.
+   s = objet selon OPTAM, nombre, ou "complete" (Sanergi complète jusqu'à la dépense, plafond inconnu). */
+const TAUX={
+  "Médecin généraliste":{b:.7,c:.5,s:{oui:.6,non:.4},br:"30",pf:1},
+  "Spécialiste":{b:.7,c:.5,s:{oui:1,non:.8},pf:1},
+  "Imagerie / échographie":{b:.7,c:.5,s:{oui:1,non:.8},pf:1},
+  "Actes techniques":{b:.7,c:.5,s:{oui:1,non:.8},pf:1},
+  "Appareillage (semelles, orthèses…)":{b:.6,c:1.9,s:1},
+  "Orthodontie":{b:1,c:2.6,s:"complete",br:"193.50"}};
+/* Forfaits Sanergi par séance (tableau des garanties, confirmés par les décomptes). */
+const FORFAITS={"Ostéopathie / chiropraxie":{m:60,pct:.9,max:6},"Psychologue":{m:50,pct:1,max:6}};
+const r2=v=>Math.round(v*100)/100;
+function exact(d){const t=TAUX[d.cat],br=num(d.br),dep=num(d.paye);if(!t||!br||!dep)return null;
+  const sr=typeof t.s==="object"?t.s[d.optam==="non"?"non":"oui"]:t.s;
+  const base=Math.min(t.b*br,dep),comp=Math.min(t.c*br,dep-base),reste=dep-base-comp;
+  const san=sr==="complete"?reste:Math.min(sr*br,reste);
+  return{secu:r2(base),camieg:r2(comp),sanergi:r2(Math.max(0,san)),complete:sr==="complete"}}
+/* Forfaits annuels Sanergi, par personne et par année civile (PMSS 2026 = 4 005 €, déduit des décomptes). */
+const ANNUELS={"Podologue":{plafond:154.19,txt:"forfait annuel prévention (3,85 % du PMSS)"},"Parodontologie":{plafond:336.42,txt:"forfait annuel parodontologie (8,40 % du PMSS)"}};
+function dejaVerse(d){return state.soins.filter(x=>x.cat===d.cat&&x.benef===d.benef&&x.id!==d.id&&x.date.slice(0,4)===d.date.slice(0,4)).reduce((a,x)=>{const r=x.rembs.sanergi;return a+(r&&(r.st==="recu"||r.st==="tp")?num(r.m):0)},0)}
+function seances(d){return state.soins.filter(x=>x.cat===d.cat&&x.benef===d.benef&&x.id!==d.id&&x.date.slice(0,4)===d.date.slice(0,4)&&x.date<=d.date).length}
+function forfait(d){const dep=num(d.paye),a=ANNUELS[d.cat];
+  if(a&&dep){const deja=r2(dejaVerse(d));return{secu:0,camieg:0,sanergi:r2(Math.min(dep,Math.max(0,a.plafond-deja))),a,deja}}
+  const f=FORFAITS[d.cat];if(!f||!dep)return null;const n=seances(d)+1;
+  return{secu:0,camieg:0,sanergi:n>f.max?0:r2(Math.min(f.m,f.pct*dep)),n,f}}
+function prevu(){const x=exact(draft)||forfait(draft);if(x)return x;const e=estimer();if(!e.n)return null;const o={};state.payeurs.forEach((p,i)=>o[p.id]=Math.round(e.taux[i]*num(draft.paye)*100)/100);return o}
+function prefill(ids){ids.forEach(id=>{const r=draft.rembs[id];if(r&&r.m==="")r.auto=true});majAuto()}
+function majAuto(){const x=num(draft.paye)?prevu():null;
+  state.payeurs.forEach(p=>{const r=draft.rembs[p.id];if(!r||!r.auto||!(r.st==="recu"||r.st==="tp"))return;
+    r.m=x&&x[p.id]!=null?String(x[p.id]):"";const i=document.getElementById("m_"+p.id);if(i)i.value=r.m})}
+function majConsult(){const t=TAUX[draft.cat];$("#consult").hidden=!t;
+  if(t){const o=typeof t.s==="object";$("#fOptam").parentElement.hidden=!o;
+    if(o&&!draft.optam)draft.optam=draft.cat==="Médecin généraliste"?"oui":"non";
+    if(draft.br==null||draft.br==="")draft.br=t.br||"";$("#fBr").value=draft.br}
+  document.querySelectorAll("#fOptam button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.o===draft.optam));
+  document.querySelectorAll("#fTp button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.tp===(draft.tp||"non")))}
+function appliquerTp(){const tp=draft.tp||"non",rs=draft.rembs.secu,rc=draft.rembs.camieg;
+  [rs,rc].forEach(r=>{if(r&&r.st==="tp"){r.st="attente";r.m=""}});
+  if(tp!=="non"&&rs){rs.st="tp";if(tp==="tout"&&rc)rc.st="tp";prefill(tp==="tout"?["secu","camieg"]:["secu"])}
+  majConsult();renderPayeurs()}
+$("#fTp").addEventListener("click",e=>{const b=e.target.closest("[data-tp]");if(!b)return;draft.tp=b.dataset.tp;appliquerTp()});
+$("#fOptam").addEventListener("click",e=>{const b=e.target.closest("[data-o]");if(!b)return;draft.optam=b.dataset.o;majConsult();calc()});
+$("#fBr").addEventListener("input",e=>{draft.br=e.target.value;calc()});
+function estimer(){
+  const hist=state.soins.filter(s=>s.cat===draft.cat&&s.id!==draft.id&&num(s.paye)>0&&!bilanSoin(s).attente);
+  const tot=hist.reduce((a,s)=>a+num(s.paye),0);
+  return{n:hist.length,taux:state.payeurs.map(p=>tot?hist.reduce((a,s)=>{const r=rOf(s,p);return a+(r.st==="recu"?num(r.m):0)},0)/tot:0)}}
+function majEstim(){const el=$("#estim"),paye=num(draft.paye);
+  const av=$("#avance"),tpM=state.payeurs.reduce((a,p)=>a+(draft.rembs[p.id]?.st==="tp"?num(draft.rembs[p.id].m):0),0);
+  av.hidden=!(tpM&&paye);av.textContent=`Avancé par vous chez le médecin : ${eur.format(Math.max(0,paye-tpM))}`;
+  if(draft.paye===""||!paye){el.textContent="";return}
+  const x=exact(draft)||forfait(draft);
+  if(x){const tot=x.secu+x.camieg+x.sanergi;
+    let t=(x.a?`Sanergi : ${x.a.txt}, soit ${eur.format(x.a.plafond)} par an. Déjà versé pour ${draft.benef} en ${draft.date.slice(0,4)} : ${eur.format(x.deja)}. `:x.f?`Forfait Sanergi : ${eur.format(x.f.m)} par séance, ${x.f.max} séances par an (séance n° ${x.n} pour ${draft.benef} en ${draft.date.slice(0,4)}). `:`Calcul sur une base de ${eur.format(num(draft.br))} : `)
+      +state.payeurs.map(p=>`${p.nom} ${eur.format(x[p.id]||0)}`).join(", ")+`, reste ${eur.format(Math.max(0,paye-tot))}.`;
+    if(x.f&&x.n>x.f.max)t+=" Plafond annuel de séances atteint.";
+    if(x.a&&x.deja>=x.a.plafond)t+=" Forfait annuel épuisé.";
+    if(x.complete)t+=" Sanergi complète jusqu'à la dépense (son plafond exact n'est pas connu).";
+    if(TAUX[draft.cat]?.pf)t+=" Pour un adulte, la CAMIEG retient en plus 2 € de participation forfaitaire, à part.";
+    const ec=state.payeurs.map(p=>{const r=draft.rembs[p.id];if(!(r.st==="recu"||r.st==="tp")||r.m==="")return"";const m=num(r.m);
+      return Math.abs(m-(x[p.id]||0))>0.05?`${p.nom} : ${eur.format(m)} au lieu de ${eur.format(x[p.id]||0)}`:""}).filter(Boolean);
+    if(ec.length)t+=" Écart avec le calcul : "+ec.join(", ")+".";
+    el.textContent=t;return}
+  const e=estimer();
+  if(!e.n){el.textContent="Pas encore d'estimation pour ce type de soin : elle se fera à partir de vos premiers soins remboursés.";return}
+  const est=e.taux.map(t=>t*paye),rac=Math.max(0,paye-est.reduce((a,b)=>a+b,0));
+  let t=`Estimation d'après ${e.n} soin${e.n>1?"s":""} de ce type : `+state.payeurs.map((p,i)=>`${p.nom} ~${eur.format(est[i])}`).join(", ")+`, reste ~${eur.format(rac)}.`;
+  if(VARIABLES.includes(draft.cat))t+=" Peu fiable pour ce type de soin : les montants varient beaucoup.";
+  const ecarts=state.payeurs.map((p,i)=>{const r=draft.rembs[p.id];if(!(r.st==="recu"||r.st==="tp")||r.m==="")return"";const m=num(r.m);
+    return Math.abs(m-est[i])>Math.max(2,est[i]*.2)?`${p.nom} a versé ${eur.format(m)} au lieu de ~${eur.format(est[i])}`:""}).filter(Boolean);
+  if(ecarts.length)t+=" Écart avec l'estimation : "+ecarts.join(", ")+".";
+  el.textContent=t}
+function readForm(){draft.date=$("#fDate").value;draft.paye=$("#fPaye").value;draft.libelle=$("#fLib").value.trim();draft.cat=$("#fCat").value;if(!state.benefs.includes(draft.benef))draft.benef=state.benefs[0]}
+function calc(){readForm();majAuto();const b=bilanSoin(draft);
+  $("#calcLbl").textContent=b.attente?"Reste à charge provisoire":"Reste à charge";
+  $("#calcVal").textContent=draft.paye===""?"—":eur.format(b.rac);majEstim()}
+$("#payeursFields").addEventListener("click",e=>{const v=e.target.closest("[data-env]");
+  const grp=x=>groupes(draft)[+x.dataset.g];
+  if(v){const r=draft.rembs[grp(v)[0].id];r.env=v.dataset.env;if(r.env==="envoye"&&!r.envD)r.envD=new Date().toISOString().slice(0,10);renderPayeurs();return}
+  const t=e.target.closest("[data-st]");if(!t)return;
+  const g=grp(t);draft.rembs[g[0].id].st=t.dataset.st;if(t.dataset.st==="recu")prefill(g.map(p=>p.id));renderPayeurs();if(t.dataset.st==="recu")$("#m_"+g[0].id)?.focus()});
+$("#payeursFields").addEventListener("input",e=>{if(e.target.dataset.ed){draft.rembs[groupes(draft)[+e.target.dataset.ed][0].id].envD=e.target.value;aligner(draft);return}if(e.target.dataset.m){draft.rembs[e.target.dataset.m].m=e.target.value;draft.rembs[e.target.dataset.m].auto=false;calc()}});
+["#fPaye","#fDate","#fLib"].forEach(s=>$(s).addEventListener("input",calc));
+$("#fCat").addEventListener("change",()=>{readForm();draft.br="";draft.optam="";majConsult();appliquerRegle();appliquerTp();majHint()});
+$("#btnSave").onclick=()=>{readForm();
+  if(!draft.date||draft.paye===""){$("#fPaye").reportValidity();return}
+  state.payeurs.forEach(p=>{if(draft.rembs[p.id])delete draft.rembs[p.id].auto});const i=state.soins.findIndex(x=>x.id===draft.id);if(i>=0)state.soins[i]=draft;else state.soins.push(draft);
+  pjAvant.filter(id=>!draft.pj.includes(id)).forEach(supprPj); pjNouvelles=[];
+  const etaitEdit=!!editId; save();render();
+  $("#dlg").close()};
+function abandon(){pjNouvelles.forEach(supprPj);pjNouvelles=[]}
+$("#btnCancel").onclick=()=>$("#dlg").close();
+$("#dlg").addEventListener("close",abandon);
+$("#btnAdd").onclick=()=>openForm(null);
+$("#btnDel").onclick=()=>{const b=$("#btnDel");
+  if(!b.dataset.arm){b.dataset.arm="1";b.textContent="Toucher à nouveau pour confirmer la suppression";b.classList.add("arm");return}
+  (state.soins.find(x=>x.id===editId)?.pj||[]).forEach(supprPj);abandon();
+  state.soins=state.soins.filter(x=>x.id!==editId);save();render();$("#dlg").close()};
+$("#liste").addEventListener("click",e=>{const b=e.target.closest(".soin");if(b)openForm(b.dataset.id)});
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{filtre=b.dataset.f;
+  document.querySelectorAll(".tabs button").forEach(x=>x.setAttribute("aria-pressed",x===b));render()});
+$("#annee").onchange=e=>{annee=e.target.value;render()};
+document.querySelectorAll(".selQui").forEach(q=>q.onchange=e=>{qui=e.target.value;render()});
+
+/* --- pièces jointes (stockées sur le téléphone) --- */
+const IDB={p:null,open(){return this.p||(this.p=new Promise((res,rej)=>{const r=indexedDB.open("remb-pj",1);r.onupgradeneeded=()=>r.result.createObjectStore("pj");r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}))},
+  async tx(mode,fn){const db=await this.open();return new Promise((res,rej)=>{const t=db.transaction("pj",mode);const q=fn(t.objectStore("pj"));t.oncomplete=()=>res(q&&q.result);t.onerror=()=>rej(t.error)})},
+  put(k,v){return this.tx("readwrite",s=>s.put(v,k))},get(k){return this.tx("readonly",s=>s.get(k))},del(k){return this.tx("readwrite",s=>s.delete(k))}};
+function supprPj(id){IDB.del(id).catch(()=>{});if(urls[id]){URL.revokeObjectURL(urls[id]);delete urls[id]}}
+async function urlPj(id){if(urls[id])return urls[id];const b=await IDB.get(id).catch(()=>null);if(!b)return null;return urls[id]=URL.createObjectURL(b)}
+function renderPj(){
+  $("#pjs").innerHTML=draft.pj.map(id=>`<button type="button" class="pj" data-voir="${id}"><span>…</span><span class="x" data-rm="${id}" aria-label="Retirer">×</span></button>`).join("")
+   +`<label class="addpj">Ajouter photo ou PDF<input type="file" accept="image/*,application/pdf" multiple id="pjInput"></label>`;
+  $("#pjInfo").hidden=true;
+  draft.pj.forEach(async id=>{const u=await urlPj(id),b=document.querySelector(`[data-voir="${id}"] span`);if(!b)return;
+    const blob=u&&await IDB.get(id);b.outerHTML=!u?"<span>Absente</span>":blob.type==="application/pdf"?"<span>PDF</span>":`<img src="${u}" alt="Pièce jointe">`})}
+$("#pjs").addEventListener("click",async e=>{const v=e.target.closest("[data-voir]");if(!v||e.target.closest("[data-rm]"))return;
+  const id=v.dataset.voir,u=await urlPj(id);if(!u)return;const blob=await IDB.get(id);
+  $("#pjView").innerHTML=blob.type==="application/pdf"?`<p>Document PDF</p>`:`<img src="${u}" alt="Pièce jointe">`;
+  $("#pjShare").onclick=async()=>{const f=new File([blob],blob.type==="application/pdf"?"facture.pdf":"facture.jpg",{type:blob.type});
+    try{await navigator.share({files:[f]})}catch(e){}};$("#dlgPj").showModal()});
+async function compresser(f){
+  if(!f.type.startsWith("image/"))return f;
+  try{const bmp=await createImageBitmap(f);const k=Math.min(1,1800/Math.max(bmp.width,bmp.height));
+    const c=document.createElement("canvas");c.width=Math.round(bmp.width*k);c.height=Math.round(bmp.height*k);
+    c.getContext("2d").drawImage(bmp,0,0,c.width,c.height);
+    return await new Promise(r=>c.toBlob(b=>r(b||f),"image/jpeg",.82))}catch(e){return f}
+}
+$("#pjs").addEventListener("click",e=>{const x=e.target.closest("[data-rm]");if(!x)return;e.preventDefault();
+  draft.pj=draft.pj.filter(i=>i!==x.dataset.rm);
+  if(pjNouvelles.includes(x.dataset.rm)){supprPj(x.dataset.rm);pjNouvelles=pjNouvelles.filter(i=>i!==x.dataset.rm)}
+  renderPj()});
+$("#pjs").addEventListener("change",async e=>{if(e.target.id!=="pjInput")return;
+  const files=[...e.target.files];const info=$("#pjInfo");info.hidden=false;info.textContent="Enregistrement…";
+  for(const f of files){try{const b=await compresser(f);
+      const t=b.type==="application/pdf"?"application/pdf":"image/jpeg";
+      const id="pj_"+uid();await IDB.put(id,b);
+      draft.pj.push(id);pjNouvelles.push(id)}
+    catch(err){info.textContent="Impossible d'enregistrer "+f.name+". Réessayez avec une photo plus légère.";renderPj();info.hidden=false;return}}
+  renderPj()});
+
+/* --- réglages --- */
+$("#btnSettings").onclick=()=>{
+  $("#setPayeurs").innerHTML=state.payeurs.map((p,i)=>`<label class="f" for="sp${i}">Organisme ${i+1}</label><div class="two"><input id="sp${i}" value="${esc(p.nom)}"><select id="se${i}" aria-label="Envoi par défaut">${["auto","aenvoyer"].map(v=>`<option value="${v}" ${(p.env||"auto")===v?"selected":""}>${v==="auto"?"Envoi automatique":"Toujours à envoyer"}</option>`).join("")}</select></div>${i>0?`<label style="display:flex;gap:8px;align-items:center;font-size:14px;margin-top:6px"><input type="checkbox" id="sl${i}" style="width:auto;min-height:0" ${p.lie?"checked":""}> Saisi avec ${esc(state.payeurs[i-1].nom)} (même statut et même envoi, sauf tiers payant partiel)</label>`:""}`).join("");
+  $("#setBenefs").value=state.benefs.join(", ");$("#dlgSet").showModal()};
+$("#setCancel").onclick=()=>$("#dlgSet").close();
+$("#setSave").onclick=()=>{state.payeurs.forEach((p,i)=>{const v=$("#sp"+i).value.trim();if(v)p.nom=v;p.env=$("#se"+i).value;if(i>0)p.lie=$("#sl"+i).checked});
+  const b=$("#setBenefs").value.split(",").map(x=>x.trim()).filter(Boolean);if(b.length)state.benefs=b;
+  save();render();$("#dlgSet").close()};
+
+render();
+
+/* --- sauvegarde / import --- */
+function majInfo(){const n=state.soins.length;$("#syncInfo").textContent=n?`${n} soin${n>1?"s":""} enregistré${n>1?"s":""} sur ce téléphone`:"Aucun soin pour l'instant"}
+$("#btnExport").onclick=async()=>{const nom=`remboursements-${new Date().toISOString().slice(0,10)}.json`;
+  const f=new File([JSON.stringify(state)],nom,{type:"application/json"});
+  try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:nom});return}}catch(e){if(e.name==="AbortError")return}
+  const a=document.createElement("a");a.href=URL.createObjectURL(f);a.download=nom;a.click()};
+$("#fImport").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f)return;
+  try{const d=JSON.parse(await f.text());const v=d.data||d;if(!Array.isArray(v.soins)||!Array.isArray(v.payeurs))throw 0;
+    if(state.soins.length&&!confirm(`Remplacer les ${state.soins.length} soins actuels par les ${v.soins.length} soins de la sauvegarde ?`))return;
+    state=migrer(v);save();render();majInfo();alert(`${v.soins.length} soins importés.`)}
+  catch(err){alert("Ce fichier n'est pas une sauvegarde de l'appli.")}};
+const _render=render;render=function(){_render();majInfo()};
+render();
+if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script>
+</body>
+</html>
